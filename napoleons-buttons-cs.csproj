@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <RootNamespace>NapoleonsButtons</RootNamespace>
+        <AssemblyName>NapoleonsButtons</AssemblyName>
+        <LangVersion>8</LangVersion>
+        <NullableContextOptions>enable</NullableContextOptions>
+    </PropertyGroup>
+
+</Project>
