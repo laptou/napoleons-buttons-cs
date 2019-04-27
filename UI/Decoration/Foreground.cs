@@ -1,19 +1,5 @@
-namespace NapoleonsButtons
+namespace NapoleonsButtons.UI.Decoration
 {
-    public struct Color
-    {
-        public Color(byte red, byte green, byte blue)
-        {
-            Red = red;
-            Green = green;
-            Blue = blue;
-        }
-
-        public byte Red { get; }
-        public byte Green { get; }
-        public byte Blue { get; }
-    }
-
     public class Foreground : Element, IHasChild
     {
         public Foreground(Element child, Color color)
@@ -29,9 +15,14 @@ namespace NapoleonsButtons
         public override Render Render(RenderParameters parameters)
         {
             var childRender = Child.Render(parameters);
-            return new Render(
-                $"\x1b[38;2;{Color.Red};{Color.Green};{Color.Blue}m{childRender.Text}\x1b[39m",
-                childRender.Size);
+
+            if (childRender.Buffer.Length > 0)
+            {
+                childRender.Buffer[0] = $"\x1b[38;2;{Color.Red};{Color.Green};{Color.Blue}m" + childRender.Buffer[0];
+                childRender.Buffer[^1] = childRender.Buffer[^1] + "\x1b[39m";
+            }
+
+            return childRender;
         }
 
         public override Size Measure(LayoutParameters parameters)
