@@ -9,7 +9,7 @@ namespace NapoleonsButtons.UI.Layout
         Right
     }
 
-    public class HorizontalAlign : ContainerElement
+    public class HorizontalAlign : ContainerElement<Element>
     {
         public HorizontalAlign(Element child, HorizontalAlignment alignment) : base(child)
         {

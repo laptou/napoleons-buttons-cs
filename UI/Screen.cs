@@ -2,7 +2,7 @@ using System;
 
 namespace NapoleonsButtons.UI
 {
-    public class Screen : ContainerElement
+    public class Screen : ContainerElement<Element>
     {
         public Screen(Element child) : base(child)
         {

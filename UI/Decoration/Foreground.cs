@@ -1,3 +1,5 @@
+using NapoleonsButtons.UI.Util;
+
 namespace NapoleonsButtons.UI.Decoration
 {
     public class Foreground : Element, IHasChild
@@ -18,7 +20,13 @@ namespace NapoleonsButtons.UI.Decoration
 
             if (childRender.Buffer.Length > 0)
             {
-                childRender.Buffer[0] = $"\x1b[38;2;{Color.Red};{Color.Green};{Color.Blue}m" + childRender.Buffer[0];
+                var esc = Escape.Foreground(Color);
+                childRender.Buffer[0] = esc + childRender.Buffer[0];
+
+                // replace reset colour with setting colour back to our color :-)
+                for (var i = 0; i < childRender.Buffer.Length; i++)
+                    childRender.Buffer[i] = childRender.Buffer[i].Replace("\x1b[39m", esc);
+
                 childRender.Buffer[^1] = childRender.Buffer[^1] + "\x1b[39m";
             }
 

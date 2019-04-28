@@ -1,15 +1,18 @@
+using System;
+
 namespace NapoleonsButtons.UI
 {
-    public abstract class ContainerElement : Element, IHasChild
+    public abstract class ContainerElement<T> : Element, IHasChild
+        where T : Element
     {
-        private Element _child;
+        private T _child;
 
-        protected ContainerElement(Element child)
+        protected ContainerElement(T child)
         {
             _child = child;
         }
 
-        public Element Child
+        public T Child
         {
             get => _child;
             set
@@ -20,7 +23,19 @@ namespace NapoleonsButtons.UI
             }
         }
 
-        protected virtual void OnChildChanged(Element newChild, Element oldChild)
+        Element IHasChild.Child
+        {
+            get => Child;
+            set
+            {
+                if (value is T tChild)
+                    Child = tChild;
+                else
+                    throw new InvalidCastException($"{value} is not a {typeof(T)}");
+            }
+        }
+
+        protected virtual void OnChildChanged(T newChild, T oldChild)
         {
             InvalidateMeasure();
         }

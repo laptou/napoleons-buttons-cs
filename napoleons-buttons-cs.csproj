@@ -9,8 +9,4 @@
         <NullableContextOptions>enable</NullableContextOptions>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Folder Include="UI\Interactive"/>
-    </ItemGroup>
-
 </Project>

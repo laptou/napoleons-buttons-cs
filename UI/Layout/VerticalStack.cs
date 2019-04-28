@@ -3,7 +3,7 @@ using static System.Math;
 
 namespace NapoleonsButtons.UI.Layout
 {
-    public class VerticalStack : MultiContainerElement
+    public class VerticalStack : MultiContainerElement<Element>
     {
         public VerticalStack(params Element[] children) : base(children)
         {

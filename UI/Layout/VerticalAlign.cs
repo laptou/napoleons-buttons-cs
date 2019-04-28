@@ -9,7 +9,7 @@ namespace NapoleonsButtons.UI.Layout
         Bottom
     }
 
-    public class VerticalAlign : ContainerElement, IHasChild
+    public class VerticalAlign : ContainerElement<Element>, IHasChild
     {
         public VerticalAlign(Element child, VerticalAlignment alignment) : base(child)
         {

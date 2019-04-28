@@ -67,15 +67,16 @@ namespace NapoleonsButtons.UI.Content
                      wrappedLine++)
                 {
                     var text = _content[currentLine];
+                    var remaining = text.Length - offset;
 
-                    if (text.Length - offset <= GivenSize.Width)
+                    if (remaining >= width)
                     {
                         _wrappedContent[wrappedLine] = text[offset..offset + width];
                         offset += GivenSize.Width;
                     }
                     else
                     {
-                        _wrappedContent[wrappedLine] = text[offset..];
+                        _wrappedContent[wrappedLine] = text[offset..] + new string(' ', remaining);
                         offset = 0;
                         currentLine++;
                     }
