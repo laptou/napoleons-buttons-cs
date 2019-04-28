@@ -25,9 +25,15 @@ namespace NapoleonsButtons.UI.Decoration
             return childRender;
         }
 
-        public override Size Measure(LayoutParameters parameters)
+        protected override Size MeasureOverride(Size availableSize)
         {
-            return Child.Measure(parameters);
+            Child.Measure(availableSize);
+            return Child.DesiredSize;
+        }
+
+        protected override void ArrangeOverride(Size actualSize)
+        {
+            Child.Arrange(actualSize);
         }
     }
 }

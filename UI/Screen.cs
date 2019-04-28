@@ -2,36 +2,22 @@ using System;
 
 namespace NapoleonsButtons.UI
 {
-    public class Screen : Element
+    public class Screen : ContainerElement
     {
-        private Element _child;
-
-        public Screen(Element child)
+        public Screen(Element child) : base(child)
         {
-            _child = child;
+            MeasureInvalidated += OnMeasureInvalidated;
+            RenderInvalidated += OnRenderInvalidated;
         }
 
-        public Element Child
+        private void OnMeasureInvalidated(object sender, EventArgs e)
         {
-            get => _child;
-            set
-            {
-                _child = value;
-                InvalidateMeasure();
-            }
+            var size = Measure(new Size(Console.WindowWidth, Console.WindowHeight));
+            Arrange(size);
         }
 
-        public override void OnMeasureInvalidated(Size newSize)
+        private void OnRenderInvalidated(object sender, EventArgs eventArgs)
         {
-            base.OnMeasureInvalidated(newSize);
-            _child.Measure(new LayoutParameters(newSize));
-
-            InvalidateRender();
-        }
-
-        public override void OnRenderInvalidated()
-        {
-            base.OnRenderInvalidated();
             Render();
         }
 
@@ -45,12 +31,18 @@ namespace NapoleonsButtons.UI
 
         public override Render Render(RenderParameters parameters)
         {
-            return _child.Render(parameters);
+            return Child.Render(parameters);
         }
 
-        public override void Measure(LayoutParameters parameters)
+        protected override Size MeasureOverride(Size availableSize)
         {
-            DesiredSize = new Size(Console.WindowWidth, Console.WindowHeight);
+            Child.Measure(availableSize);
+            return availableSize;
+        }
+
+        protected override void ArrangeOverride(Size actualSize)
+        {
+            Child.Arrange(actualSize);
         }
     }
 }

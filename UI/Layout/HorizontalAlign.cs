@@ -9,13 +9,10 @@ namespace NapoleonsButtons.UI.Layout
         Right
     }
 
-    public class HorizontalAlign : Element, IHasChild
+    public class HorizontalAlign : ContainerElement
     {
-        private Element _child;
-
-        public HorizontalAlign(Element child, HorizontalAlignment alignment)
+        public HorizontalAlign(Element child, HorizontalAlignment alignment) : base(child)
         {
-            _child = child;
             Alignment = alignment;
         }
 
@@ -23,7 +20,7 @@ namespace NapoleonsButtons.UI.Layout
 
         public override Render Render(RenderParameters parameters)
         {
-            int space = GivenSize.Width - _child.GivenSize.Width, left;
+            int space = GivenSize.Width - Child.GivenSize.Width, left;
 
             switch (Alignment)
             {
@@ -34,14 +31,14 @@ namespace NapoleonsButtons.UI.Layout
                     left = space / 2;
                     break;
                 case HorizontalAlignment.Right:
-                    left = GivenSize.Width - _child.GivenSize.Width;
+                    left = GivenSize.Width - Child.GivenSize.Width;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
             var buffer = new string[GivenSize.Height];
-            var childRender = _child.Render(parameters);
+            var childRender = Child.Render(parameters);
 
             for (var i = 0; i < buffer.Length; i++)
                 buffer[i] = new string(' ', left) + childRender.Buffer[i] + new string(' ', space - left);
@@ -49,20 +46,15 @@ namespace NapoleonsButtons.UI.Layout
             return new Render(buffer, GivenSize);
         }
 
-        public override Size Measure(LayoutParameters parameters)
+        protected override Size MeasureOverride(Size availableSize)
         {
-            var childSize = _child.Measure(parameters);
-            return new Size(parameters.AvailableSize.Width, childSize.Height);
+            var childSize = Child.Measure(availableSize);
+            return new Size(availableSize.Width, childSize.Height);
         }
 
-        public Element Child
+        protected override void ArrangeOverride(Size actualSize)
         {
-            get => _child;
-            set
-            {
-                _child = value;
-                InvalidateMeasure();
-            }
+            Child.Arrange(new Size(Math.Min(actualSize.Width, Child.DesiredSize.Width), actualSize.Height));
         }
     }
 }

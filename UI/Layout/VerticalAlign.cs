@@ -9,11 +9,10 @@ namespace NapoleonsButtons.UI.Layout
         Bottom
     }
 
-    public class VerticalAlign : WrapperBase, IHasChild
+    public class VerticalAlign : ContainerElement, IHasChild
     {
-        public VerticalAlign(Element child, VerticalAlignment alignment)
+        public VerticalAlign(Element child, VerticalAlignment alignment) : base(child)
         {
-            Child = child;
             Alignment = alignment;
         }
 
@@ -53,18 +52,13 @@ namespace NapoleonsButtons.UI.Layout
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            var childSize = Child.MeasureOverride(availableSize);
-            DesiredSize = new Size(childSize.Width, availableSize.Height);
+            Child.Measure(availableSize);
+            return new Size(Child.DesiredSize.Width, availableSize.Height);
         }
 
-        public Element Child
+        protected override void ArrangeOverride(Size actualSize)
         {
-            get => _child;
-            set
-            {
-                _child = value;
-                InvalidateMeasure();
-            }
+            Child.Arrange(new Size(actualSize.Width, Math.Min(actualSize.Height, Child.DesiredSize.Height)));
         }
     }
 }

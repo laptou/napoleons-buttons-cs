@@ -1,18 +1,19 @@
 using System;
+using System.Linq;
 
 namespace NapoleonsButtons.UI.Content
 {
     public class Text : Element
     {
+        private string[] _content;
+        private bool     _wrap;
+
+        private string[]? _wrappedContent;
+
         public Text(params string[] content)
         {
             _content = content;
         }
-
-        private string[] _content = new string[0];
-        private bool _wrap;
-
-        private string[]? _wrappedContent;
 
         public string[] Content
         {
@@ -34,10 +35,27 @@ namespace NapoleonsButtons.UI.Content
             }
         }
 
-        public override void OnMeasureInvalidated(Size newSize)
+        public override Render Render(RenderParameters parameters)
         {
-            base.OnMeasureInvalidated(newSize);
+            if (Wrap)
+                return new Render(_wrappedContent!, GivenSize);
 
+            return new Render(_content, GivenSize);
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            if (Wrap)
+            {
+                var numLines = (int) Math.Ceiling((float) _content.Length / availableSize.Height);
+                return new Size(availableSize.Width, numLines);
+            }
+
+            return new Size(Content.Max(l => l.Length), Content.Length);
+        }
+
+        protected override void ArrangeOverride(Size actualSize)
+        {
             if (Wrap)
             {
                 var (width, height) = GivenSize;
@@ -45,8 +63,8 @@ namespace NapoleonsButtons.UI.Content
                 _wrappedContent = new string[height];
 
                 for (int wrappedLine = 0, currentLine = 0, offset = 0;
-                    wrappedLine < GivenSize.Height;
-                    wrappedLine++)
+                     wrappedLine < GivenSize.Height;
+                     wrappedLine++)
                 {
                     var text = _content[currentLine];
 
@@ -63,25 +81,6 @@ namespace NapoleonsButtons.UI.Content
                     }
                 }
             }
-        }
-
-        public override Render Render(RenderParameters parameters)
-        {
-            if (Wrap)
-                return new Render(_wrappedContent!, GivenSize);
-
-            return new Render(_content, GivenSize);
-        }
-
-        public override Size Measure(LayoutParameters parameters)
-        {
-            if (Wrap)
-            {
-                var numLines = (int) Math.Ceiling((float) _content.Length / parameters.AvailableSize.Height);
-                return new Size(parameters.AvailableSize.Width, numLines);
-            }
-
-            return new Size(Content.Length, 1);
         }
     }
 }

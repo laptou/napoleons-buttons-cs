@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace NapoleonsButtons.UI
@@ -14,57 +15,101 @@ namespace NapoleonsButtons.UI
 
         #region Rendering
 
-        public virtual void InvalidateRender()
+        public void InvalidateRender()
         {
             Parent?.InvalidateRender();
-            MeasureInvalidated?.Invoke(this, null);
-        }
-
-        public virtual void OnRenderInvalidated()
-        {
             RenderInvalidated?.Invoke(this, null);
         }
 
         public abstract Render Render(RenderParameters parameters);
+
+        public event EventHandler RenderInvalidated;
 
         #endregion
 
         #region Layout
 
         public event EventHandler MeasureInvalidated;
-        public event EventHandler RenderInvalidated;
 
-        public virtual Size DesiredSize { get; protected set; }
+        public virtual Size DesiredSize { get; private set; }
 
         public virtual Size GivenSize { get; private set; }
 
-        public virtual void Measure(Size availableSize)
+        public virtual Size Measure(Size availableSize)
         {
             DesiredSize = MeasureOverride(availableSize);
+            return DesiredSize;
         }
 
         protected abstract Size MeasureOverride(Size availableSize);
 
+        public virtual void Arrange(Size actualSize)
+        {
+            GivenSize = actualSize;
+            ArrangeOverride(actualSize);
+        }
+
+        protected abstract void ArrangeOverride(Size actualSize);
+
         public virtual void InvalidateMeasure()
         {
             Parent?.InvalidateMeasure();
+            MeasureInvalidated?.Invoke(this, null);
         }
 
         #endregion
     }
 
-    public abstract class WrapperBase : Element, IHasChild
+    public abstract class ContainerElement : Element, IHasChild
     {
         private Element _child;
+
+        protected ContainerElement(Element child)
+        {
+            _child = child;
+        }
 
         public Element Child
         {
             get => _child;
             set
             {
+                var oldChild = _child;
                 _child = value;
-                InvalidateMeasure();
+                OnChildChanged(_child, oldChild);
             }
+        }
+
+        protected virtual void OnChildChanged(Element newChild, Element oldChild)
+        {
+            InvalidateMeasure();
+        }
+    }
+
+    public abstract class MultiContainerElement : Element, IHasChildren
+    {
+        private readonly ObservableCollection<Element> _children = new ObservableCollection<Element>();
+
+        protected MultiContainerElement(params Element[] children)
+        {
+            foreach (var child in children)
+                _children.Add(child);
+        }
+
+        public IList<Element> Children => _children;
+
+        IEnumerable<Element> IHasChildren.Children => _children;
+
+        public void AddChild(Element element)
+        {
+            _children.Add(element);
+            element.Parent = this;
+        }
+
+        public void RemoveChild(Element element)
+        {
+            _children.Remove(element);
+            element.Parent = null;
         }
     }
 
@@ -104,7 +149,6 @@ namespace NapoleonsButtons.UI
         public Size ScreenSize { get; }
     }
 
-    [DebuggerDisplay("< width: {Width}, height: {Height} >")]
     public struct Render
     {
         public string[] Buffer { get; }
@@ -114,7 +158,7 @@ namespace NapoleonsButtons.UI
         {
             // buffer should not contain \n
 
-            Buffer = new string[] {buffer};
+            Buffer = new[] {buffer};
             Size = new Size(buffer.Length, 1);
         }
 
@@ -125,6 +169,7 @@ namespace NapoleonsButtons.UI
         }
     }
 
+    [DebuggerDisplay("< width: {Width}, height: {Height} >")]
     public struct Size
     {
         public int Width { get; }

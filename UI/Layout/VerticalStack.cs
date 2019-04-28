@@ -1,18 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using static System.Math;
 
 namespace NapoleonsButtons.UI.Layout
 {
-    public class VerticalStack : Element, IHasChildren
+    public class VerticalStack : MultiContainerElement
     {
-        private readonly ObservableCollection<Element> _children = new ObservableCollection<Element>();
-
-        public VerticalStack(params Element[] children)
+        public VerticalStack(params Element[] children) : base(children)
         {
-            foreach (var child in children)
-                _children.Add(child);
         }
 
         public override Render Render(RenderParameters parameters)
@@ -20,7 +14,7 @@ namespace NapoleonsButtons.UI.Layout
             var buffer = new string[GivenSize.Height];
             var offset = 0;
 
-            foreach (var child in _children)
+            foreach (var child in Children)
             {
                 var render = child.Render(parameters);
                 Array.Copy(
@@ -42,7 +36,7 @@ namespace NapoleonsButtons.UI.Layout
 
             var childAvailableSize = new Size(availableSize.Width, 0);
 
-            foreach (var child in _children)
+            foreach (var child in Children)
             {
                 child.Measure(childAvailableSize);
 
@@ -54,18 +48,12 @@ namespace NapoleonsButtons.UI.Layout
             return new Size(width, height);
         }
 
-        public IEnumerable<Element> Children => _children;
-
-        public void AddChild(Element element)
+        protected override void ArrangeOverride(Size actualSize)
         {
-            _children.Add(element);
-            element.Parent = this;
-        }
-
-        public void RemoveChild(Element element)
-        {
-            _children.Remove(element);
-            element.Parent = null;
+            foreach (var child in Children)
+                child.Arrange(new Size(
+                    actualSize.Width,
+                    Min(actualSize.Height, child.DesiredSize.Height)));
         }
     }
 }
